@@ -58,6 +58,7 @@ const Footer = () => {
         muted
         loop
         playsInline
+        controls={false}
         className='absolute inset-0 w-full h-full object-cover'
         style={{ transform: 'scaleY(-1)' }}
       />

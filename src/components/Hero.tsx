@@ -18,13 +18,31 @@ const Hero = () => {
 
     let hls: Hls | null = null;
 
+    const playVideo = () => {
+      video.play().catch(() => {
+        // Autoplay blocked — muted autoplay should work but some browsers still block
+        // Add a one-time click listener as fallback
+        const handleClick = () => {
+          video.play().catch(() => {});
+          document.removeEventListener('click', handleClick);
+        };
+        document.addEventListener('click', handleClick);
+      });
+    };
+
     if (Hls.isSupported()) {
       hls = new Hls();
       hls.loadSource(HLS_URL);
       hls.attachMedia(video);
+      hls.on(Hls.Events.MANIFEST_PARSED, () => {
+        playVideo();
+      });
     } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
       // Safari native HLS
       video.src = HLS_URL;
+      video.addEventListener('loadedmetadata', () => {
+        playVideo();
+      });
     }
 
     return () => {
@@ -72,6 +90,7 @@ const Hero = () => {
         muted
         loop
         playsInline
+        controls={false}
         className="absolute top-1/2 left-1/2 min-w-full min-h-full object-cover -translate-x-1/2 -translate-y-1/2"
       />
 
